@@ -3,50 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ultimate Arcade</title>
+<title>Mini Arcade</title>
 
 <style>
 body{
-    margin:0;
-    font-family:Arial,sans-serif;
     background:#111827;
     color:white;
+    font-family:Arial,sans-serif;
+    text-align:center;
+    margin:0;
 }
 
 header{
-    padding:20px;
-    text-align:center;
+    padding:30px;
 }
 
 #search{
     width:80%;
-    max-width:600px;
+    max-width:500px;
     padding:12px;
-    border:none;
     border-radius:10px;
+    border:none;
     font-size:18px;
 }
 
-.grid{
+.games{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:15px;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
     padding:20px;
 }
 
 .card{
     background:#1f2937;
-    border-radius:12px;
     padding:20px;
-    text-align:center;
-}
-
-.card h3{
-    margin-top:0;
+    border-radius:15px;
 }
 
 button{
-    padding:10px 16px;
+    padding:10px 20px;
     border:none;
     border-radius:8px;
     cursor:pointer;
@@ -56,7 +51,7 @@ button{
 <body>
 
 <header>
-<h1>🎮 Ultimate Arcade</h1>
+<h1>🎮 Mini Arcade</h1>
 
 <input
 id="search"
@@ -64,97 +59,52 @@ placeholder="Search games..."
 >
 </header>
 
-<div class="grid" id="games"></div>
+<div class="games" id="games">
 
-<script>
-
-const games = [
-"Snake",
-"Tetris",
-"Pong",
-"Breakout",
-"Flappy Bird",
-"Space Shooter",
-"Asteroids",
-"2048",
-"Minesweeper",
-"Tic Tac Toe",
-"Connect Four",
-"Memory Match",
-"Simon Says",
-"Hangman",
-"Word Scramble",
-"Dodge Blocks",
-"Reaction Test",
-"Platform Jumper",
-"Endless Runner",
-"Clicker Empire",
-"Chess",
-"Checkers",
-"Sudoku",
-"Color Match",
-"Ball Bounce",
-"Fruit Catcher",
-"Tower Defense",
-"Racing",
-"Zombie Survival",
-"Maze Escape"
-];
-
-const container =
-document.getElementById("games");
-
-function render(list){
-
-container.innerHTML = "";
-
-list.forEach(game=>{
-
-const card =
-document.createElement("div");
-
-card.className="card";
-
-card.innerHTML=`
-<h3>${game}</h3>
-<p>Ready to play</p>
-<button onclick="launch('${game}')">
+<div class="card game">
+<h2>Snake</h2>
+<p>Eat food and grow.</p>
+<button onclick="location.href='games/snake.html'">
 Play
 </button>
-`;
+</div>
 
-container.appendChild(card);
+<div class="card game">
+<h2>Breakout</h2>
+<p>Break all the bricks.</p>
+<button onclick="location.href='games/breakout.html'">
+Play
+</button>
+</div>
+
+<div class="card game">
+<h2>Flappy Bird</h2>
+<p>Fly through pipes.</p>
+<button onclick="location.href='games/flappybird.html'">
+Play
+</button>
+</div>
+
+</div>
+
+<script>
+const search=document.getElementById("search");
+
+search.addEventListener("input",()=>{
+
+const term=search.value.toLowerCase();
+
+document.querySelectorAll(".game").forEach(game=>{
+
+const text=game.innerText.toLowerCase();
+
+game.style.display=
+text.includes(term)
+? "block"
+: "none";
 
 });
-
-}
-
-function launch(game){
-
-alert(
-game +
-" game selected.\n\nReplace this alert with the actual game."
-);
-
-}
-
-render(games);
-
-document
-.getElementById("search")
-.addEventListener("input",e=>{
-
-const term =
-e.target.value.toLowerCase();
-
-render(
-games.filter(g=>
-g.toLowerCase().includes(term)
-)
-);
-
 });
-
 </script>
 
 </body>
