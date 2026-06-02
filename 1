@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coin Dash</title>
+<style>
+    body{
+        margin:0;
+        background:#111;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+        font-family:Arial,sans-serif;
+        color:white;
+    }
+
+    canvas{
+        background:#1e1e2f;
+        border:3px solid #fff;
+    }
+</style>
+</head>
+<body>
+
+<canvas id="game" width="800" height="500"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const keys = {};
+
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => keys[e.key] = false);
+
+const player = {
+    x:100,
+    y:250,
+    size:25,
+    speed:5
+};
+
+let score = 0;
+let gameOver = false;
+
+const coin = {
+    x:Math.random()*760+20,
+    y:Math.random()*460+20,
+    size:12
+};
+
+const enemies = [];
+
+function spawnEnemy(){
+    enemies.push({
+        x:Math.random()*800,
+        y:Math.random()*500,
+        size:20,
+        speed:2 + Math.random()*2
+    });
+}
+
+for(let i=0;i<3;i++) spawnEnemy();
+
+function circleCollision(a,b){
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
+    return Math.sqrt(dx*dx + dy*dy) < a.size + b.size;
+}
+
+function update(){
+
+    if(gameOver) return;
+
+    if(keys["ArrowUp"] || keys["w"]) player.y -= player.speed;
+    if(keys["ArrowDown"] || keys["s"]) player.y += player.speed;
+    if(keys["ArrowLeft"] || keys["a"]) player.x -= player.speed;
+    if(keys["ArrowRight"] || keys["d"]) player.x += player.speed;
+
+    player.x = Math.max(player.size, Math.min(canvas.width-player.size, player.x));
+    player.y = Math.max(player.size, Math.min(canvas.height-player.size, player.y));
+
+    if(circleCollision(player, coin)){
+        score++;
+
+        coin.x = Math.random()*760+20;
+        coin.y = Math.random()*460+20;
+
+        if(score % 5 === 0){
+            spawnEnemy();
+        }
+    }
+
+    enemies.forEach(enemy => {
+        const dx = player.x - enemy.x;
+        const dy = player.y - enemy.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+
+        enemy.x += (dx/dist) * enemy.speed;
+        enemy.y += (dy/dist) * enemy.speed;
+
+        if(circleCollision(player, enemy)){
+            gameOver = true;
+        }
+    });
+}
+
+function draw(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // Player
+    ctx.fillStyle = "#4CAF50";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.size, 0, Math.PI*2);
+    ctx.fill();
+
+    // Coin
+    ctx.fillStyle = "gold";
+    ctx.beginPath();
+    ctx.arc(coin.x, coin.y, coin.size, 0, Math.PI*2);
+    ctx.fill();
+
+    // Enemies
+    ctx.fillStyle = "crimson";
+    enemies.forEach(enemy=>{
+        ctx.beginPath();
+        ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI*2);
+        ctx.fill();
+    });
+
+    // UI
+    ctx.fillStyle = "white";
+    ctx.font = "24px Arial";
+    ctx.fillText("Score: " + score, 15, 35);
+
+    if(gameOver){
+        ctx.fillStyle = "rgba(0,0,0,0.7)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.font = "50px Arial";
+        ctx.fillText("GAME OVER", canvas.width/2, 220);
+
+        ctx.font = "30px Arial";
+        ctx.fillText("Score: " + score, canvas.width/2, 280);
+
+        ctx.font = "20px Arial";
+        ctx.fillText("Refresh page to play again", canvas.width/2, 330);
+        ctx.textAlign = "left";
+    }
+}
+
+function gameLoop(){
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+
+</body>
+</html>
