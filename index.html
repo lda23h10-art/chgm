@@ -2,8 +2,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mini Arcade</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ultimate Arcade</title>
 
 <style>
 body{
@@ -11,291 +11,148 @@ body{
     font-family:Arial,sans-serif;
     background:#111827;
     color:white;
+}
+
+header{
+    padding:20px;
     text-align:center;
 }
 
-.screen{
-    display:none;
+#search{
+    width:80%;
+    max-width:600px;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    font-size:18px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
     padding:20px;
 }
 
-.active{
-    display:block;
+.card{
+    background:#1f2937;
+    border-radius:12px;
+    padding:20px;
+    text-align:center;
+}
+
+.card h3{
+    margin-top:0;
 }
 
 button{
-    padding:12px 24px;
-    margin:10px;
-    font-size:18px;
-    cursor:pointer;
+    padding:10px 16px;
     border:none;
-    border-radius:10px;
-}
-
-.menu-btn{
-    width:250px;
-}
-
-canvas{
-    background:#000;
-    border:2px solid white;
-}
-
-#clickArea{
-    width:200px;
-    height:200px;
-    background:orange;
-    margin:auto;
-    border-radius:20px;
+    border-radius:8px;
     cursor:pointer;
 }
 </style>
 </head>
 <body>
 
-<!-- MAIN MENU -->
-<div id="menu" class="screen active">
-    <h1>🎮 Mini Arcade</h1>
+<header>
+<h1>🎮 Ultimate Arcade</h1>
 
-    <button class="menu-btn" onclick="startSnake()">🐍 Snake</button><br>
-    <button class="menu-btn" onclick="startDodge()">⬛ Dodge Blocks</button><br>
-    <button class="menu-btn" onclick="startClicker()">🖱 Clicker Challenge</button>
-</div>
+<input
+id="search"
+placeholder="Search games..."
+>
+</header>
 
-<!-- SNAKE -->
-<div id="snakeScreen" class="screen">
-    <h2>🐍 Snake</h2>
-    <p>Score: <span id="snakeScore">0</span></p>
-    <canvas id="snakeCanvas" width="400" height="400"></canvas>
-    <br>
-    <button onclick="showMenu()">Back</button>
-</div>
-
-<!-- DODGE -->
-<div id="dodgeScreen" class="screen">
-    <h2>⬛ Dodge Blocks</h2>
-    <p>Score: <span id="dodgeScore">0</span></p>
-    <canvas id="dodgeCanvas" width="500" height="500"></canvas>
-    <br>
-    <button onclick="showMenu()">Back</button>
-</div>
-
-<!-- CLICKER -->
-<div id="clickerScreen" class="screen">
-    <h2>🖱 Clicker Challenge</h2>
-    <h3>Clicks: <span id="clicks">0</span></h3>
-    <div id="clickArea"></div>
-    <br>
-    <button onclick="showMenu()">Back</button>
-</div>
+<div class="grid" id="games"></div>
 
 <script>
 
-function hideAll(){
-    document.querySelectorAll(".screen")
-    .forEach(s=>s.classList.remove("active"));
+const games = [
+"Snake",
+"Tetris",
+"Pong",
+"Breakout",
+"Flappy Bird",
+"Space Shooter",
+"Asteroids",
+"2048",
+"Minesweeper",
+"Tic Tac Toe",
+"Connect Four",
+"Memory Match",
+"Simon Says",
+"Hangman",
+"Word Scramble",
+"Dodge Blocks",
+"Reaction Test",
+"Platform Jumper",
+"Endless Runner",
+"Clicker Empire",
+"Chess",
+"Checkers",
+"Sudoku",
+"Color Match",
+"Ball Bounce",
+"Fruit Catcher",
+"Tower Defense",
+"Racing",
+"Zombie Survival",
+"Maze Escape"
+];
+
+const container =
+document.getElementById("games");
+
+function render(list){
+
+container.innerHTML = "";
+
+list.forEach(game=>{
+
+const card =
+document.createElement("div");
+
+card.className="card";
+
+card.innerHTML=`
+<h3>${game}</h3>
+<p>Ready to play</p>
+<button onclick="launch('${game}')">
+Play
+</button>
+`;
+
+container.appendChild(card);
+
+});
+
 }
 
-function showMenu(){
-    hideAll();
-    document.getElementById("menu").classList.add("active");
+function launch(game){
+
+alert(
+game +
+" game selected.\n\nReplace this alert with the actual game."
+);
+
 }
 
-/* ---------------- SNAKE ---------------- */
+render(games);
 
-let snakeLoop;
+document
+.getElementById("search")
+.addEventListener("input",e=>{
 
-function startSnake(){
+const term =
+e.target.value.toLowerCase();
 
-    hideAll();
-    document.getElementById("snakeScreen")
-    .classList.add("active");
+render(
+games.filter(g=>
+g.toLowerCase().includes(term)
+)
+);
 
-    const canvas =
-    document.getElementById("snakeCanvas");
-
-    const ctx = canvas.getContext("2d");
-
-    let snake=[{x:10,y:10}];
-    let food={
-        x:Math.floor(Math.random()*20),
-        y:Math.floor(Math.random()*20)
-    };
-
-    let dx=1;
-    let dy=0;
-    let score=0;
-
-    document.onkeydown=(e)=>{
-        if(e.key==="ArrowUp"){dx=0;dy=-1;}
-        if(e.key==="ArrowDown"){dx=0;dy=1;}
-        if(e.key==="ArrowLeft"){dx=-1;dy=0;}
-        if(e.key==="ArrowRight"){dx=1;dy=0;}
-    };
-
-    clearInterval(snakeLoop);
-
-    snakeLoop=setInterval(()=>{
-
-        let head={
-            x:snake[0].x+dx,
-            y:snake[0].y+dy
-        };
-
-        if(
-            head.x<0||
-            head.y<0||
-            head.x>=20||
-            head.y>=20
-        ){
-            alert("Game Over!");
-            clearInterval(snakeLoop);
-            return;
-        }
-
-        snake.unshift(head);
-
-        if(
-            head.x===food.x &&
-            head.y===food.y
-        ){
-            score++;
-            document.getElementById(
-            "snakeScore").textContent=score;
-
-            food={
-                x:Math.floor(Math.random()*20),
-                y:Math.floor(Math.random()*20)
-            };
-        }else{
-            snake.pop();
-        }
-
-        ctx.fillStyle="black";
-        ctx.fillRect(0,0,400,400);
-
-        ctx.fillStyle="lime";
-        snake.forEach(s=>{
-            ctx.fillRect(
-            s.x*20,s.y*20,18,18);
-        });
-
-        ctx.fillStyle="red";
-        ctx.fillRect(
-        food.x*20,
-        food.y*20,
-        18,18);
-
-    },120);
-}
-
-/* ---------------- DODGE ---------------- */
-
-let dodgeAnimation;
-
-function startDodge(){
-
-    hideAll();
-    document.getElementById("dodgeScreen")
-    .classList.add("active");
-
-    const canvas =
-    document.getElementById("dodgeCanvas");
-
-    const ctx = canvas.getContext("2d");
-
-    let player={
-        x:230,
-        y:450,
-        w:40,
-        h:40
-    };
-
-    let score=0;
-
-    let blocks=[];
-
-    let keys={};
-
-    window.onkeydown=e=>keys[e.key]=true;
-    window.onkeyup=e=>keys[e.key]=false;
-
-    function spawn(){
-        blocks.push({
-            x:Math.random()*460,
-            y:-20,
-            w:30,
-            h:30
-        });
-    }
-
-    function loop(){
-
-        dodgeAnimation=
-        requestAnimationFrame(loop);
-
-        if(keys["ArrowLeft"])
-            player.x-=5;
-
-        if(keys["ArrowRight"])
-            player.x+=5;
-
-        ctx.clearRect(0,0,500,500);
-
-        ctx.fillStyle="cyan";
-        ctx.fillRect(
-        player.x,
-        player.y,
-        player.w,
-        player.h);
-
-        ctx.fillStyle="red";
-
-        blocks.forEach(b=>{
-            b.y+=4;
-
-            ctx.fillRect(
-            b.x,b.y,b.w,b.h);
-
-            if(
-                b.x<player.x+player.w &&
-                b.x+b.w>player.x &&
-                b.y<player.y+player.h &&
-                b.y+b.h>player.y
-            ){
-                alert("Game Over!");
-                cancelAnimationFrame(
-                dodgeAnimation);
-            }
-        });
-
-        score++;
-        document.getElementById(
-        "dodgeScore")
-        .textContent=Math.floor(score/10);
-    }
-
-    blocks=[];
-    setInterval(spawn,700);
-
-    loop();
-}
-
-/* ---------------- CLICKER ---------------- */
-
-let clicks=0;
-
-function startClicker(){
-    hideAll();
-    document.getElementById("clickerScreen")
-    .classList.add("active");
-}
-
-document.getElementById("clickArea")
-.addEventListener("click",()=>{
-    clicks++;
-    document.getElementById("clicks")
-    .textContent=clicks;
 });
 
 </script>
