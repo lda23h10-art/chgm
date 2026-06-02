@@ -52,14 +52,10 @@ button{
 
 <header>
 <h1>🎮 Mini Arcade</h1>
-
-<input
-id="search"
-placeholder="Search games..."
->
+<input id="search" placeholder="Search games...">
 </header>
 
-<div class="games" id="games">
+<div class="games">
 
 <div class="card game">
 <h2>Snake</h2>
@@ -88,22 +84,17 @@ Play
 </div>
 
 <script>
-const search=document.getElementById("search");
+const search = document.getElementById("search");
 
-search.addEventListener("input",()=>{
+search.addEventListener("input", () => {
+  const term = search.value.toLowerCase();
 
-const term=search.value.toLowerCase();
-
-document.querySelectorAll(".game").forEach(game=>{
-
-const text=game.innerText.toLowerCase();
-
-game.style.display=
-text.includes(term)
-? "block"
-: "none";
-
-});
+  document.querySelectorAll(".game").forEach(game => {
+    game.style.display =
+      game.innerText.toLowerCase().includes(term)
+      ? "block"
+      : "none";
+  });
 });
 </script>
 
